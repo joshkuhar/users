@@ -22,5 +22,63 @@ app.post('/users', jsonParser, function(req, res){
 
 	var username = req.body.username;
 
-	
-})
+	if(typeof username !== 'string') {
+		return res.status(422).json({
+			message: 'Incorrect field type: username'
+		});
+	}
+
+	username = username.trim();
+
+	if (username === '') {
+        return res.status(422).json({
+            message: 'Incorrect field length: username'
+        });
+    }
+
+    if (!('password' in req.body)) {
+        return res.status(422).json({
+            message: 'Missing field: password'
+        });
+    }
+
+    var password = req.body.password;
+
+    if (typeof password !== 'string') {
+        return res.status(422).json({
+            message: 'Incorrect field type: password'
+        });
+    }
+
+    password = password.trim();
+
+    if (password === '') {
+        return res.status(422).json({
+            message: 'Incorrect field length: password'
+        });
+    }
+
+    var user = new User({
+        username: username,
+        password: password
+    });
+
+    ser.save(function(err) {
+        if (err) {
+            return res.status(500).json({
+                message: 'Internal server error'
+            });
+        }
+
+        return res.status(201).json({});
+    });
+});
+
+mongoose.connect('mongodb://localhost/auth').then(function() {
+    app.listen(process.env.PORT || 8080);
+});
+
+
+
+
+
